@@ -1,0 +1,57 @@
+This setup will simulate multiple servers using docker and how we can use NGINX as a layer 7 
+We will proxy and loadbalance 
+
+https://github.com/hnasr/javascript_playground.git
+cd javascript_playground
+mv ../docker
+cd ../ 
+rm -rf javascript_playground
+cd docker
+docker build --tag nodeapp .
+
+docker run -p 2222:9999 -e APPID=2222 -d nodeapp  <--runs on 2222 but listens on 9999 
+docker run -p 3333:9999 -e APPID=3333 -d nodeapp
+docker run -p 4444:9999 -e APPID=4444 -d nodeapp
+docker run -p 5555:9999 -e APPID=5555 -d nodeapp
+
+If someone goes to the main URL we want to proxy to the backend
+Go to localhost in your browser and you will see the round robin loadbalancing
+
+# If service nginx restart fails run 'nginx -s reload'  it will give better error message
+
+####################################################################################
+
+# BASIC EXAMPLE
+
+# You have to import the stream module
+load_module /usr/lib/nginx/modules/ngx_stream_module.so;
+
+# Stream indicates its a L4 Proxy
+stream {
+
+        # This will perform round robin loadbalancing
+        upstream allbackend {
+                #ip_hash;                   <---- Enable this to turn on sticky sessions
+                server 127.0.0.1:2222;
+                server 127.0.0.1:3333;
+                server 127.0.0.1:4444;
+                server 127.0.0.1:5555;
+        }
+
+        server {
+                listen 80;
+                proxy_pass allbackend;
+        }
+}
+
+events {}
+
+####################################################################################
+
+# LAYER 4 
+- The proxy will just stream the connection to the backend 
+- The proxy will stream the connection back to the backend 
+- We use this by listening on 80 proxying the L4 loadbalancers and stream the connection to the loadbalancer
+
+# LAYER7 
+- The browser communicated with the NGINX

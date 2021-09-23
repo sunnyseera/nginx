@@ -1,0 +1,31 @@
+
+This conf file will let you go to 
+http://localhost:8080 which will serve your basic site 
+
+
+BUT if you go to http://localhost:8888 it will proxy you back to the original on  8080
+
+# If service nginx restart fails run 'nginx -s reload'  it will give better error message
+
+#################################################################################################
+
+http {
+
+        server {
+                listen 8080;
+                root /git/sunny/nginx/1_static_site;
+
+        }
+
+        server {
+                listen 8888;
+                location / {
+
+                proxy_pass http://localhost:8080/;
+                }
+        }
+}
+
+events {}
+
+#################################################################################################

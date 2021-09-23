@@ -1,0 +1,68 @@
+#################################################################################################
+
+# Include Stream Module 
+load_module /usr/lib/nginx/modules/ngx_stream_module.so;
+
+# Set Path for Error Log
+error_log  /var/log/nginx/error.log warn;
+
+# Set PID Location
+pid        /var/run/nginx.pid;
+
+#################################################################################################
+
+http {
+
+        # Logging Information 
+        include       /etc/nginx/mime.types;
+        default_type  application/octet-stream;
+        log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
+                      '$status $body_bytes_sent "$http_referer" '
+                      '"$http_user_agent" "$http_x_forwarded_for"';
+        # Access Log Location 
+        access_log  /var/log/nginx/access.log  main;
+
+        # How long to keep a connection alive for 
+        keepalive_timeout  65;
+
+        # This will perform round robin loadbalancing
+        upstream allbackend {
+                #ip_hash;                   <---- Enable this to turn on sticky sessions
+                server 127.0.0.1:2222;
+                server 127.0.0.1:3333;
+                server 127.0.0.1:4444;
+                server 127.0.0.1:5555;
+        }
+
+        upstream app1backend {
+                #ip_hash;                   <---- Enable this to turn on sticky sessions
+                server 127.0.0.1:2222;
+                server 127.0.0.1:3333;
+    }
+
+        upstream app2backend {
+                #ip_hash;                   <---- Enable this to turn on sticky sessions
+                server 127.0.0.1:4444;
+                server 127.0.0.1:5555;
+    }
+
+        server {
+        listen 80;
+        location / {
+                proxy_pass http://allbackend/;
+    }
+    
+        location /app1 {
+                proxy_pass http://app1backend/;
+    }
+
+        location /app2  {
+                proxy_pass http://app2backend/;
+    }
+  }
+}
+
+
+events {}
+
+#################################################################################################

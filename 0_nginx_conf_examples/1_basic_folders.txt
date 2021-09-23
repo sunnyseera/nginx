@@ -1,0 +1,24 @@
+
+This conf file will let you go to 
+http://localhost:8080
+In the folder /git/sunny/nginx; you can hae a site1 and site 2 folder and an index.html at the nginx folder levelto act as a landing page. 
+
+http://localhost:8080       <-- /git/sunny/nginx/index.html       <-- Landing Page
+http://localhost:8080/site1 <-- /git/sunny/nginx/site1/index.html <-- Site 1 Page
+http://localhost:8080/site2 <-- /git/sunny/nginx/site2/index.html <-- Site 2 Page
+
+#################################################################################################
+
+# If service nginx restart fails run 'nginx -s reload'  it will give better error message
+
+http {
+
+        server {
+                listen 8080;
+                root /git/sunny/nginx;
+        }
+}
+
+events {}
+
+#################################################################################################
